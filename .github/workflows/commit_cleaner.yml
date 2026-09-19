@@ -1,0 +1,33 @@
+name: CommitsCleaner
+
+on:
+  schedule: [{cron: "0 0 */2 * *"}]
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Init git
+        run: |
+          git config user.name "Commits manager"
+          git config user.email "<>"
+          git branch -m main
+
+      - name: deriveMain
+        run: |
+          git checkout --orphan temp
+          git add -A
+          git commit -am "Saved most recent commit"
+          
+      - name: deleteMain
+        run: git branch -D main
+        
+      - name: renameCurrentBranch
+        run: git branch -m main
+        
+      - name: applyUpdates
+        run: git push -f origin main
